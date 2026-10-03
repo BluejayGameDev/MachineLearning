@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Wall
   - Goal
+  - AI
+  - Deadly
+  - Startpos
   layers:
   - Default
   - TransparentFX
@@ -14,9 +17,9 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
-  - 
-  - 
+  - Player
+  - Ai Agent
+  - obstacle
   - 
   - 
   - 
