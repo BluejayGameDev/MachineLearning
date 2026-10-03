@@ -5,7 +5,7 @@ public class RaceManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlatformerAgent ai;
     [SerializeField] private Transform player;
-    [SerializeField] private Transform playerStart;
+    [SerializeField] private LevelManager levelManager;
 
     [Header("Settings")]
     [SerializeField] private bool startRaceAutomatically = true;
@@ -72,10 +72,13 @@ public class RaceManager : MonoBehaviour
             return;
         }
 
-        if (playerStart != null)
+        Transform startPosition =
+            GetCurrentStartPosition();
+
+        if (startPosition != null)
         {
             player.position =
-                playerStart.position;
+                startPosition.position;
         }
 
         Rigidbody2D rb =
@@ -89,6 +92,25 @@ public class RaceManager : MonoBehaviour
             rb.angularVelocity =
                 0f;
         }
+    }
+
+    // ============================================================
+    // LEVEL REFERENCES
+    // ============================================================
+
+    public Transform GetCurrentStartPosition()
+    {
+        return levelManager.GetCurrentStartPosition();
+    }
+
+    public Transform GetCurrentGoal()
+    {
+        if (levelManager == null)
+        {
+            return null;
+        }
+
+        return levelManager.GetCurrentGoal();
     }
 
     // ============================================================
@@ -183,7 +205,8 @@ public class RaceManager : MonoBehaviour
 
         if (aiTime < bestAITime)
         {
-            bestAITime = aiTime;
+            bestAITime =
+                aiTime;
         }
 
         Debug.Log(

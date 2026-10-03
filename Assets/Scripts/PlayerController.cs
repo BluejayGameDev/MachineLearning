@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform StartPosition;
     [SerializeField] private RaceManager raceManager;
+    [SerializeField] private LevelManager levelManager;
 
     [Header("Movement")]
     [SerializeField] private float MoveSpeed = 1.5f;
@@ -44,41 +45,22 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        rb =
+            GetComponent<Rigidbody2D>();
 
-        originalScale = transform.localScale;
+        spriteRenderer =
+            GetComponent<SpriteRenderer>();
 
-        rb.gravityScale = normalGravity;
+        originalScale =
+            transform.localScale;
+
+        rb.gravityScale =
+            normalGravity;
     }
 
     private void Start()
     {
-        FindStartPosition();
         ResetForRace();
-    }
-
-    private void FindStartPosition()
-    {
-        GameObject startObject =
-            GameObject.FindGameObjectWithTag("Startpos");
-
-        if (startObject != null)
-        {
-            StartPosition =
-                startObject.transform;
-
-            Debug.Log(
-                "Player found Startpos: " +
-                startObject.name
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                "Player could not find an object with the 'Startpos' tag!"
-            );
-        }
     }
 
     private void Update()
@@ -88,7 +70,8 @@ public class PlayerController : MonoBehaviour
 
         if (jumpDemonstrationTimer > 0f)
         {
-            jumpDemonstrationTimer -= Time.deltaTime;
+            jumpDemonstrationTimer -=
+                Time.deltaTime;
         }
     }
 
@@ -119,10 +102,11 @@ public class PlayerController : MonoBehaviour
             facingDirection = -1;
             UpdateFacingDirection();
 
-            rb.linearVelocity = new Vector2(
-                -MoveSpeed,
-                rb.linearVelocity.y
-            );
+            rb.linearVelocity =
+                new Vector2(
+                    -MoveSpeed,
+                    rb.linearVelocity.y
+                );
         }
         else if (movement > 0f)
         {
@@ -131,19 +115,21 @@ public class PlayerController : MonoBehaviour
             facingDirection = 1;
             UpdateFacingDirection();
 
-            rb.linearVelocity = new Vector2(
-                MoveSpeed,
-                rb.linearVelocity.y
-            );
+            rb.linearVelocity =
+                new Vector2(
+                    MoveSpeed,
+                    rb.linearVelocity.y
+                );
         }
         else
         {
             currentMovementDirection = 0;
 
-            rb.linearVelocity = new Vector2(
-                0f,
-                rb.linearVelocity.y
-            );
+            rb.linearVelocity =
+                new Vector2(
+                    0f,
+                    rb.linearVelocity.y
+                );
         }
     }
 
@@ -151,7 +137,9 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
-            jumpBufferCounter = jumpBufferTime;
+            jumpBufferCounter =
+                jumpBufferTime;
+
             jumpDemonstrationTimer =
                 jumpDemonstrationDuration;
         }
@@ -165,27 +153,31 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        isGrounded = Physics2D.OverlapCircle(
-            groundCheck.position,
-            groundCheckRadius,
-            groundLayer
-        );
+        isGrounded =
+            Physics2D.OverlapCircle(
+                groundCheck.position,
+                groundCheckRadius,
+                groundLayer
+            );
     }
 
     private void UpdateJumpTimers()
     {
         if (isGrounded)
         {
-            coyoteCounter = coyoteTime;
+            coyoteCounter =
+                coyoteTime;
         }
         else
         {
-            coyoteCounter -= Time.fixedDeltaTime;
+            coyoteCounter -=
+                Time.fixedDeltaTime;
         }
 
         if (jumpBufferCounter > 0f)
         {
-            jumpBufferCounter -= Time.fixedDeltaTime;
+            jumpBufferCounter -=
+                Time.fixedDeltaTime;
         }
 
         HandleJump();
@@ -196,10 +188,11 @@ public class PlayerController : MonoBehaviour
         if (jumpBufferCounter > 0f &&
             coyoteCounter > 0f)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                jumpPower
-            );
+            rb.linearVelocity =
+                new Vector2(
+                    rb.linearVelocity.x,
+                    jumpPower
+                );
 
             jumpBufferCounter = 0f;
             coyoteCounter = 0f;
@@ -210,45 +203,67 @@ public class PlayerController : MonoBehaviour
     {
         if (rb.linearVelocity.y < 0f)
         {
-            rb.gravityScale = fallGravity;
+            rb.gravityScale =
+                fallGravity;
         }
         else
         {
-            rb.gravityScale = normalGravity;
+            rb.gravityScale =
+                normalGravity;
         }
     }
 
     private void UpdateFacingDirection()
     {
-        Vector3 newScale = originalScale;
+        Vector3 newScale =
+            originalScale;
 
         if (facingDirection == -1)
         {
             newScale.x =
-                -Mathf.Abs(originalScale.x);
+                -Mathf.Abs(
+                    originalScale.x
+                );
         }
         else
         {
             newScale.x =
-                Mathf.Abs(originalScale.x);
+                Mathf.Abs(
+                    originalScale.x
+                );
         }
 
-        transform.localScale = newScale;
+        transform.localScale =
+            newScale;
     }
 
     public void ResetForRace()
     {
-        FindStartPosition();
+        if (levelManager == null)
+        {
+            Debug.LogError(
+                "PlayerController: LevelManager is not assigned!"
+            );
+
+            return;
+        }
+
+        StartPosition =
+            levelManager.GetCurrentStartPosition();
 
         if (StartPosition != null)
         {
+            transform.position =
+                StartPosition.position;
+
             rb.position =
                 StartPosition.position;
         }
         else
         {
-            rb.position =
-                Vector2.zero;
+            Debug.LogError(
+                "PlayerController: Could not get Startpos from LevelManager!"
+            );
         }
 
         rb.linearVelocity =
@@ -292,7 +307,9 @@ public class PlayerController : MonoBehaviour
         Collision2D collision
     )
     {
-        if (collision.gameObject.CompareTag("Deadly"))
+        if (collision.gameObject.CompareTag(
+            "Deadly"
+        ))
         {
             PlayerDied();
         }

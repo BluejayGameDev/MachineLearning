@@ -8,6 +8,9 @@ public class PlatformerAgent : Agent
     [Header("References")]
     [SerializeField] private Transform goal;
     [SerializeField] private Transform startPosition;
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private RaceManager raceManager;
+    [SerializeField] private AgentEyes agentEyes;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 1.5f;
@@ -22,7 +25,7 @@ public class PlatformerAgent : Agent
     [SerializeField] private LayerMask groundLayer;
 
     [Header("Rewards")]
-    [SerializeField] private float progressReward = 0.01f;
+    [SerializeField] private float progressReward = 0.1f;
     [SerializeField] private float stepPenalty = -0.001f;
     [SerializeField] private float goalReward = 1f;
     [SerializeField] private float losePenalty = -1f;
@@ -38,7 +41,6 @@ public class PlatformerAgent : Agent
     private Rigidbody2D rb;
     private bool isGrounded;
     private float previousDistanceToGoal;
-
     private int facingDirection = 1;
     private Vector3 originalScale;
 
@@ -71,10 +73,6 @@ public class PlatformerAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        RaceManager raceManager =
-            FindFirstObjectByType<RaceManager>();
-
-        // Completely disable the race first.
         if (raceManager != null)
         {
             raceManager.PrepareForNewRoom();
@@ -84,18 +82,11 @@ public class PlatformerAgent : Agent
             ResetAgentPosition();
         }
 
-        // Remove the references to the old room.
         goal = null;
         startPosition = null;
 
-        LevelManager levelManager =
-            FindFirstObjectByType<LevelManager>();
-
         if (levelManager != null)
         {
-            // The rest of the reset happens after
-            // the old room has actually been destroyed
-            // and the new room has spawned.
             levelManager.ResetLevel(
                 FinishEpisodeReset
             );
@@ -103,15 +94,34 @@ public class PlatformerAgent : Agent
             return;
         }
 
-        // Fallback if there is no LevelManager.
         FinishEpisodeReset();
     }
 
     private void FinishEpisodeReset()
     {
-        FindLevelObjects();
+        if (levelManager != null)
+        {
+            startPosition =
+                levelManager.GetCurrentStartPosition();
 
-        // Print the episode that just ended.
+            goal =
+                levelManager.GetCurrentGoal();
+        }
+
+        if (startPosition == null)
+        {
+            Debug.LogError(
+                "PlatformerAgent: Could not get Startpos from LevelManager!"
+            );
+        }
+
+        if (goal == null)
+        {
+            Debug.LogError(
+                "PlatformerAgent: Could not get Goal from LevelManager!"
+            );
+        }
+
         if (currentEpisode > 0)
         {
             Debug.Log(
@@ -140,18 +150,10 @@ public class PlatformerAgent : Agent
         }
 
         currentEpisode++;
+        cumulativeReward = 0f;
 
-        cumulativeReward =
-            0f;
-
-        // Reset AI to the NEW room's Startpos.
         ResetAgent();
 
-        RaceManager raceManager =
-            FindFirstObjectByType<RaceManager>();
-
-        // Reset player to the NEW room's Startpos.
-        // This also turns the race back on.
         if (raceManager != null)
         {
             raceManager.ResetForNewEpisode();
@@ -171,53 +173,6 @@ public class PlatformerAgent : Agent
             currentEpisode +
             " - AI AND PLAYER RESET"
         );
-    }
-
-    private void FindLevelObjects()
-    {
-        GameObject goalObject =
-            GameObject.FindGameObjectWithTag(
-                "Goal"
-            );
-
-        if (goalObject != null)
-        {
-            goal =
-                goalObject.transform;
-
-            Debug.Log(
-                "AI found NEW Goal: " +
-                goalObject.name
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                "AI could not find an object with the 'Goal' tag!"
-            );
-        }
-
-        GameObject startObject =
-            GameObject.FindGameObjectWithTag(
-                "Startpos"
-            );
-
-        if (startObject != null)
-        {
-            startPosition =
-                startObject.transform;
-
-            Debug.Log(
-                "AI found NEW Startpos: " +
-                startObject.name
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                "AI could not find an object with the 'Startpos' tag!"
-            );
-        }
     }
 
     public override void CollectObservations(
@@ -296,6 +251,38 @@ public class PlatformerAgent : Agent
         sensor.AddObservation(
             isGrounded ? 1f : 0f
         );
+
+        if (agentEyes != null)
+        {
+            float[] eyeDistances =
+                agentEyes.GetEyeDistances();
+
+            float[] eyeTypes =
+                agentEyes.GetEyeTypes();
+
+            for (int i = 0;
+                 i < eyeDistances.Length;
+                 i++)
+            {
+                sensor.AddObservation(
+                    Mathf.Clamp01(
+                        eyeDistances[i] / 5f
+                    )
+                );
+
+                sensor.AddObservation(
+                    eyeTypes[i] / 2f
+                );
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                sensor.AddObservation(1f);
+                sensor.AddObservation(0f);
+            }
+        }
     }
 
     public override void OnActionReceived(
@@ -319,7 +306,6 @@ public class PlatformerAgent : Agent
                 );
 
             facingDirection = -1;
-
             UpdateFacingDirection();
         }
         else if (moveAction == 2)
@@ -331,7 +317,6 @@ public class PlatformerAgent : Agent
                 );
 
             facingDirection = 1;
-
             UpdateFacingDirection();
         }
         else
@@ -356,9 +341,7 @@ public class PlatformerAgent : Agent
                 );
         }
 
-        GiveReward(
-            stepPenalty
-        );
+        GiveReward(stepPenalty);
 
         if (goal != null)
         {
@@ -385,14 +368,10 @@ public class PlatformerAgent : Agent
         }
     }
 
-    private void GiveReward(
-        float reward
-    )
+    private void GiveReward(float reward)
     {
         AddReward(reward);
-
-        cumulativeReward +=
-            reward;
+        cumulativeReward += reward;
     }
 
     private void FixedUpdate()
@@ -474,12 +453,9 @@ public class PlatformerAgent : Agent
         transform.rotation =
             Quaternion.identity;
 
-        isGrounded =
-            false;
+        isGrounded = false;
 
-        facingDirection =
-            1;
-
+        facingDirection = 1;
         UpdateFacingDirection();
     }
 
@@ -507,12 +483,7 @@ public class PlatformerAgent : Agent
 
     private void Die()
     {
-        GiveReward(
-            deathPenalty
-        );
-
-        RaceManager raceManager =
-            FindFirstObjectByType<RaceManager>();
+        GiveReward(deathPenalty);
 
         if (raceManager != null)
         {
@@ -526,93 +497,54 @@ public class PlatformerAgent : Agent
 
     public void ReachedGoal()
     {
-        GiveReward(
-            goalReward
-        );
+        GiveReward(goalReward);
 
-        Debug.Log(
-            "================================"
-        );
+        if (levelManager != null)
+        {
+            levelManager.FlashResult(true);
+        }
 
-        Debug.Log(
-            "RESULT: AI WON"
-        );
-
-        Debug.Log(
-            "FINAL AI REWARD: " +
-            cumulativeReward.ToString("F4")
-        );
-
-        Debug.Log(
-            "AI STEP COUNT: " +
-            StepCount
-        );
-
-        Debug.Log(
-            "================================"
-        );
+        Debug.Log("================================");
+        Debug.Log("RESULT: AI WON");
+        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
+        Debug.Log("AI STEP COUNT: " + StepCount);
+        Debug.Log("================================");
 
         EndEpisode();
     }
 
     public void PlayerWon()
     {
-        GiveReward(
-            losePenalty
-        );
+        GiveReward(losePenalty);
 
-        Debug.Log(
-            "================================"
-        );
+        if (levelManager != null)
+        {
+            levelManager.FlashResult(false);
+        }
 
-        Debug.Log(
-            "RESULT: PLAYER WON"
-        );
-
-        Debug.Log(
-            "FINAL AI REWARD: " +
-            cumulativeReward.ToString("F4")
-        );
-
-        Debug.Log(
-            "AI STEP COUNT: " +
-            StepCount
-        );
-
-        Debug.Log(
-            "================================"
-        );
+        Debug.Log("================================");
+        Debug.Log("RESULT: PLAYER WON");
+        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
+        Debug.Log("AI STEP COUNT: " + StepCount);
+        Debug.Log("================================");
 
         EndEpisode();
     }
 
     public void Timeout()
     {
-        GiveReward(
-            timeoutPenalty
-        );
+        GiveReward(timeoutPenalty);
 
-        Debug.Log(
-            "================================"
-        );
+        if (levelManager != null)
+        {
+            levelManager.FlashResult(false);
+        }
 
-        Debug.Log(
-            "RESULT: TIMEOUT"
-        );
-
-        Debug.Log(
-            "FINAL AI REWARD: " +
-            cumulativeReward.ToString("F4")
-        );
-
-        Debug.Log(
-            "AI STEP COUNT: " +
-            StepCount
-        );
-
-        Debug.Log(
-            "================================"
-        );
+        Debug.Log("================================");
+        Debug.Log("RESULT: TIMEOUT");
+        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
+        Debug.Log("AI STEP COUNT: " + StepCount);
+        Debug.Log("================================");
 
         EndEpisode();
     }
@@ -651,12 +583,9 @@ public class PlatformerAgent : Agent
         transform.rotation =
             Quaternion.identity;
 
-        isGrounded =
-            false;
+        isGrounded = false;
 
-        facingDirection =
-            1;
-
+        facingDirection = 1;
         UpdateFacingDirection();
     }
 

@@ -4,17 +4,9 @@ public class RaceFinish : MonoBehaviour
 {
     private RaceManager raceManager;
 
-    private void Awake()
+    public void SetRaceManager(RaceManager manager)
     {
-        raceManager =
-            FindFirstObjectByType<RaceManager>();
-
-        if (raceManager == null)
-        {
-            Debug.LogError(
-                "RaceFinish: Could not find a RaceManager in the scene!"
-            );
-        }
+        raceManager = manager;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

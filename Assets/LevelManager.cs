@@ -10,11 +10,23 @@ public class LevelManager : MonoBehaviour
     [Header("Spawn Point")]
     [SerializeField] private Transform levelSpawnPoint;
 
+    [Header("Race Manager")]
+    [SerializeField] private RaceManager raceManager;
+
+    [Header("Background")]
+    [SerializeField] private Transform background;
+
     [Header("Settings")]
     [SerializeField] private bool preventSameLevelRepeating = true;
 
+    [Header("Result Flash")]
+    [SerializeField] private float flashDuration = 0.2f;
+
     private GameObject currentLevel;
+
     private int previousLevelIndex = -1;
+
+    private LevelSetup currentLevelSetup;
 
     private void Awake()
     {
@@ -54,6 +66,18 @@ public class LevelManager : MonoBehaviour
         previousLevelIndex =
             randomIndex;
 
+        currentLevelSetup =
+            currentLevel.GetComponent<LevelSetup>();
+
+        if (currentLevelSetup == null)
+        {
+            Debug.LogError(
+                "LevelManager: The spawned level does not have a LevelSetup component!"
+            );
+        }
+
+        AssignRaceManagerToFinish();
+
         Debug.Log(
             "Loaded Level: " +
             levels[randomIndex].name
@@ -74,7 +98,12 @@ public class LevelManager : MonoBehaviour
         if (currentLevel != null)
         {
             Destroy(currentLevel);
-            currentLevel = null;
+
+            currentLevel =
+                null;
+
+            currentLevelSetup =
+                null;
         }
 
         StartCoroutine(
@@ -86,8 +115,6 @@ public class LevelManager : MonoBehaviour
         Action onComplete
     )
     {
-        // Wait until Unity has actually destroyed
-        // the previous level.
         yield return null;
 
         int randomIndex =
@@ -112,17 +139,150 @@ public class LevelManager : MonoBehaviour
         previousLevelIndex =
             randomIndex;
 
+        currentLevelSetup =
+            currentLevel.GetComponent<LevelSetup>();
+
+        if (currentLevelSetup == null)
+        {
+            Debug.LogError(
+                "LevelManager: The spawned level does not have a LevelSetup component!"
+            );
+        }
+
+        AssignRaceManagerToFinish();
+
         Debug.Log(
             "Loaded New Level: " +
             levels[randomIndex].name
         );
 
-        // Tell the agent that the new room
-        // now exists and can be used.
         if (onComplete != null)
         {
             onComplete();
         }
+    }
+
+    private void AssignRaceManagerToFinish()
+    {
+        if (raceManager == null)
+        {
+            Debug.LogError(
+                "LevelManager: RaceManager is not assigned!"
+            );
+
+            return;
+        }
+
+        if (currentLevel == null)
+        {
+            return;
+        }
+
+        RaceFinish[] finishes =
+            currentLevel.GetComponentsInChildren<RaceFinish>(
+                true
+            );
+
+        foreach (RaceFinish finish in finishes)
+        {
+            finish.SetRaceManager(
+                raceManager
+            );
+        }
+    }
+
+    public void FlashResult(bool aiWon)
+    {
+        if (background == null)
+        {
+            Debug.LogWarning(
+                "LevelManager: Background is not assigned!"
+            );
+
+            return;
+        }
+
+        StartCoroutine(
+            FlashBackgroundCoroutine(
+                background,
+                aiWon
+            )
+        );
+    }
+
+    private IEnumerator FlashBackgroundCoroutine(
+        Transform background,
+        bool aiWon
+    )
+    {
+        SpriteRenderer[] renderers =
+            background.GetComponentsInChildren<SpriteRenderer>(
+                true
+            );
+
+        Color flashColor;
+
+        if (aiWon)
+        {
+            flashColor =
+                Color.green;
+        }
+        else
+        {
+            flashColor =
+                Color.red;
+        }
+
+        Color[] originalColors =
+            new Color[renderers.Length];
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            originalColors[i] =
+                renderers[i].color;
+
+            Color newColor =
+                flashColor;
+
+            newColor.a =
+                originalColors[i].a;
+
+            renderers[i].color =
+                newColor;
+        }
+
+        yield return new WaitForSeconds(
+            flashDuration
+        );
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+            {
+                renderers[i].color =
+                    originalColors[i];
+            }
+        }
+    }
+
+    public Transform GetCurrentStartPosition()
+    {
+        if (currentLevelSetup == null)
+        {
+            return null;
+        }
+
+        return currentLevelSetup.GetStartPosition();
+    }
+
+    public Transform GetCurrentGoal()
+    {
+        if (currentLevelSetup == null)
+        {
+            return null;
+        }
+
+        return currentLevelSetup.GetGoal();
     }
 
     private int GetRandomLevelIndex()
