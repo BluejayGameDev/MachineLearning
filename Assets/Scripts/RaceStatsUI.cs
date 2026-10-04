@@ -10,6 +10,9 @@ public class RaceStatsUI : MonoBehaviour
     [Header("UI Text")]
     [SerializeField] private TMP_Text statsText;
 
+    [Header("Debug Settings")]
+    [SerializeField] private bool isDebugMode = true;
+
     [Header("Update Settings")]
     [SerializeField] private float updateInterval = 0.1f;
 
@@ -35,6 +38,18 @@ public class RaceStatsUI : MonoBehaviour
             ai == null ||
             statsText == null)
         {
+            return;
+        }
+
+        if (!isDebugMode)
+        {
+            statsText.text =
+                "AI Wins:       " +
+                raceManager.GetAIWins() + "\n" +
+
+                "Player Wins:   " +
+                raceManager.GetPlayerWins() + "\n";
+
             return;
         }
 

@@ -285,9 +285,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8042e0977d7d9449280a1027fe22dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  raceManager: {fileID: 0}
+  raceManager: {fileID: 1624005076}
   ai: {fileID: 1629445583}
   statsText: {fileID: 1545625809}
+  isDebugMode: 0
   updateInterval: 0.1
 --- !u!4 &15122308
 Transform:
