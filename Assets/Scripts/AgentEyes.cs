@@ -5,6 +5,11 @@ public class AgentEyes : MonoBehaviour
     [Header("Eye Settings")]
     [SerializeField] private float eyeLength = 5f;
 
+    public float EyeLength
+    {
+        get { return eyeLength; }
+    }
+
     [Header("Detection Layers")]
     [SerializeField] private LayerMask platformLayer;
     [SerializeField] private LayerMask deadlyLayer;
@@ -12,15 +17,19 @@ public class AgentEyes : MonoBehaviour
     [Header("Eye Directions")]
     [SerializeField] private Vector2[] eyeDirections =
     {
-        new Vector2(-1f, 0.3f),
-        new Vector2(-1f, 0f),
-        new Vector2(-1f, -0.3f),
+        // Left
+        new Vector2(-1f, 0.5f),
+        new Vector2(-1f, 0.15f),
+        new Vector2(-1f, -0.35f),
 
+        // Centre
         new Vector2(0f, 1f),
+        new Vector2(0f, -1f),
 
-        new Vector2(1f, 0.3f),
-        new Vector2(1f, 0f),
-        new Vector2(1f, -0.3f)
+        // Right
+        new Vector2(1f, 0.5f),
+        new Vector2(1f, 0.15f),
+        new Vector2(1f, -0.35f)
     };
 
     public float[] GetEyeDistances()
@@ -112,9 +121,14 @@ public class AgentEyes : MonoBehaviour
             {
                 types[i] = 0f;
             }
-            else if (deadlyHit.collider != null &&
-                     (platformHit.collider == null ||
-                      deadlyHit.distance < platformHit.distance))
+            else if (
+                deadlyHit.collider != null &&
+                (
+                    platformHit.collider == null ||
+                    deadlyHit.distance <
+                    platformHit.distance
+                )
+            )
             {
                 types[i] = 2f;
             }
@@ -164,9 +178,14 @@ public class AgentEyes : MonoBehaviour
                     eyeLength
                 );
 
-            if (deadlyHit.collider != null &&
-                (platformHit.collider == null ||
-                 deadlyHit.distance < platformHit.distance))
+            if (
+                deadlyHit.collider != null &&
+                (
+                    platformHit.collider == null ||
+                    deadlyHit.distance <
+                    platformHit.distance
+                )
+            )
             {
                 Gizmos.color =
                     Color.red;

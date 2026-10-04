@@ -714,7 +714,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 20
+    VectorObservationSize: 22
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -723,9 +723,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 34f0d3d583f26c2409a0f64a3005f13d, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 2
   m_BehaviorName: Platformer
   TeamId: 0
   m_UseChildSensors: 1
@@ -766,7 +766,7 @@ MonoBehaviour:
   goalReward: 1
   losePenalty: -1
   timeoutPenalty: -1
-  deathPenalty: -0.25
+  deathPenalty: -0.5
   currentEpisode: 0
   cumulativeReward: 0
 --- !u!114 &3599458069711000634
@@ -789,13 +789,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   eyeDirections:
-  - {x: -1, y: 0.3}
+  - {x: -1, y: 0.5}
   - {x: -1, y: 0}
-  - {x: -1, y: -0.3}
+  - {x: -1, y: -0.5}
   - {x: 0, y: 1}
-  - {x: 1, y: 0.3}
+  - {x: 0, y: -1}
+  - {x: 1, y: 0.5}
   - {x: 1, y: 0}
-  - {x: 1, y: -0.3}
+  - {x: 1, y: -0.5}
 --- !u!114 &5250726845966902729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1046,26 +1047,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levels:
+  - {fileID: 7718413925939209334, guid: 045708ab3cf682c45bfebec815e56129, type: 3}
+  - {fileID: 7718413925939209334, guid: b16bf801c43664d4782b5fb35ff3eda7, type: 3}
   - {fileID: 1341303077421941702, guid: dabda5d963caca14aa266307e84ffa53, type: 3}
   - {fileID: 1341303077421941702, guid: b9bbb22a526cfc3418d60842d2730352, type: 3}
-  - {fileID: 7718413925939209334, guid: 5a0e6020957b3a94ba32d23d18cd1804, type: 3}
-  - {fileID: 7718413925939209334, guid: dd4befda88fdb9045943bf271d24a6ef, type: 3}
-  - {fileID: 7718413925939209334, guid: f5a63852acfef82498d7ae8939903c08, type: 3}
-  - {fileID: 7718413925939209334, guid: 4462533d2f0f1754ea33d99c3987a705, type: 3}
-  - {fileID: 1341303077421941702, guid: e6e284299c14eae4d86d862639cc16f9, type: 3}
-  - {fileID: 1341303077421941702, guid: f05fd4d5d9ca35b4d8a02def6c587031, type: 3}
-  - {fileID: 1341303077421941702, guid: 2128ddb0bdf84f644af5cf4e50aff790, type: 3}
-  - {fileID: 1341303077421941702, guid: d41bc5f841d391f43bb20ffa02535ad8, type: 3}
+  - {fileID: 1341303077421941702, guid: 2b51cee99516f554ea1054f596b2f000, type: 3}
+  - {fileID: 1341303077421941702, guid: 4d9895ae056cbf648bd1a668d41fab9e, type: 3}
+  - {fileID: 7718413925939209334, guid: f7d4a2f7db244484192bcfc7bd18eeb1, type: 3}
+  - {fileID: 7718413925939209334, guid: 893ccfa7e8ff52841a99560712d07198, type: 3}
   - {fileID: 7718413925939209334, guid: 0f47bfd501d509143995e2a8c9e135a5, type: 3}
   - {fileID: 1341303077421941702, guid: 67db26b3736c2074f81bc7c3568213f4, type: 3}
   - {fileID: 1341303077421941702, guid: 3e9bcacf2adcc5b4a9f682912068e37c, type: 3}
   - {fileID: 1341303077421941702, guid: 2125dbb0105ec49439f5bb5bfa432ca2, type: 3}
+  - {fileID: 7718413925939209334, guid: f5a63852acfef82498d7ae8939903c08, type: 3}
+  - {fileID: 7718413925939209334, guid: 4462533d2f0f1754ea33d99c3987a705, type: 3}
+  - {fileID: 7718413925939209334, guid: 5a0e6020957b3a94ba32d23d18cd1804, type: 3}
+  - {fileID: 7718413925939209334, guid: dd4befda88fdb9045943bf271d24a6ef, type: 3}
+  - {fileID: 1341303077421941702, guid: 2128ddb0bdf84f644af5cf4e50aff790, type: 3}
+  - {fileID: 1341303077421941702, guid: e6e284299c14eae4d86d862639cc16f9, type: 3}
+  - {fileID: 1341303077421941702, guid: f05fd4d5d9ca35b4d8a02def6c587031, type: 3}
+  - {fileID: 1341303077421941702, guid: d41bc5f841d391f43bb20ffa02535ad8, type: 3}
   - {fileID: 1341303077421941702, guid: d73d00afeaf78e64bb2218b519c1c391, type: 3}
   - {fileID: 1341303077421941702, guid: 3d05cdc9c3ec1ab4297098d807eae4b4, type: 3}
-  - {fileID: 1341303077421941702, guid: 2b51cee99516f554ea1054f596b2f000, type: 3}
-  - {fileID: 1341303077421941702, guid: 4d9895ae056cbf648bd1a668d41fab9e, type: 3}
   - {fileID: 1341303077421941702, guid: 91df45e371441a2488244d8deb1ac8a0, type: 3}
   - {fileID: 1341303077421941702, guid: 9d5a8cad07dca2445887cc97a463ad55, type: 3}
+  - {fileID: 1341303077421941702, guid: 0b748b99e24730649ac46ec87a074efa, type: 3}
+  - {fileID: 1341303077421941702, guid: 6dc1c9fb815cf1c458f04b8f2f24cdd7, type: 3}
+  - {fileID: 1341303077421941702, guid: 84db77a134ce0f343893856f05366b9a, type: 3}
+  - {fileID: 1341303077421941702, guid: 9cd59c9380e6db04dbf701a296a84581, type: 3}
   levelSpawnPoint: {fileID: 3372991968365880891}
   raceManager: {fileID: 7480084581934874553}
   background: {fileID: 5117501834194408542}

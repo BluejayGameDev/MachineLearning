@@ -179,6 +179,10 @@ public class PlatformerAgent : Agent
         VectorSensor sensor
     )
     {
+        // ============================================================
+        // GOAL OBSERVATIONS
+        // ============================================================
+
         if (goal != null)
         {
             Vector2 directionToGoal =
@@ -214,6 +218,10 @@ public class PlatformerAgent : Agent
             sensor.AddObservation(0f);
         }
 
+        // ============================================================
+        // VELOCITY OBSERVATIONS
+        // ============================================================
+
         if (rb == null)
         {
             rb =
@@ -248,9 +256,17 @@ public class PlatformerAgent : Agent
             )
         );
 
+        // ============================================================
+        // GROUNDED OBSERVATION
+        // ============================================================
+
         sensor.AddObservation(
             isGrounded ? 1f : 0f
         );
+
+        // ============================================================
+        // ENVIRONMENT / EYE OBSERVATIONS
+        // ============================================================
 
         if (agentEyes != null)
         {
@@ -264,11 +280,21 @@ public class PlatformerAgent : Agent
                  i < eyeDistances.Length;
                  i++)
             {
+                // Distance:
+                // 0 = object is very close
+                // 1 = nothing detected within eye range
+
                 sensor.AddObservation(
                     Mathf.Clamp01(
-                        eyeDistances[i] / 5f
+                        eyeDistances[i] /
+                        agentEyes.EyeLength
                     )
                 );
+
+                // Type:
+                // 0 = nothing
+                // 0.5 = platform
+                // 1 = deadly
 
                 sensor.AddObservation(
                     eyeTypes[i] / 2f
@@ -277,7 +303,8 @@ public class PlatformerAgent : Agent
         }
         else
         {
-            for (int i = 0; i < 7; i++)
+            // 8 eyes × 2 observations per eye.
+            for (int i = 0; i < 8; i++)
             {
                 sensor.AddObservation(1f);
                 sensor.AddObservation(0f);
@@ -506,8 +533,14 @@ public class PlatformerAgent : Agent
 
         Debug.Log("================================");
         Debug.Log("RESULT: AI WON");
-        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
-        Debug.Log("AI STEP COUNT: " + StepCount);
+        Debug.Log(
+            "FINAL AI REWARD: " +
+            cumulativeReward.ToString("F4")
+        );
+        Debug.Log(
+            "AI STEP COUNT: " +
+            StepCount
+        );
         Debug.Log("================================");
 
         EndEpisode();
@@ -524,8 +557,14 @@ public class PlatformerAgent : Agent
 
         Debug.Log("================================");
         Debug.Log("RESULT: PLAYER WON");
-        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
-        Debug.Log("AI STEP COUNT: " + StepCount);
+        Debug.Log(
+            "FINAL AI REWARD: " +
+            cumulativeReward.ToString("F4")
+        );
+        Debug.Log(
+            "AI STEP COUNT: " +
+            StepCount
+        );
         Debug.Log("================================");
 
         EndEpisode();
@@ -542,8 +581,14 @@ public class PlatformerAgent : Agent
 
         Debug.Log("================================");
         Debug.Log("RESULT: TIMEOUT");
-        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
-        Debug.Log("AI STEP COUNT: " + StepCount);
+        Debug.Log(
+            "FINAL AI REWARD: " +
+            cumulativeReward.ToString("F4")
+        );
+        Debug.Log(
+            "AI STEP COUNT: " +
+            StepCount
+        );
         Debug.Log("================================");
 
         EndEpisode();
