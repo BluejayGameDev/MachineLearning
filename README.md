@@ -1,4 +1,5 @@
 # AI vs Human – Reinforcement Learning
+![Agent Training](Media/Thumbnail.gif)
 
 ## Overview
 
@@ -20,7 +21,7 @@ Each room contains a randomly selected goal that the AI must navigate towards. T
 
 The player uses standard platforming controls while the AI uses actions learned through reinforcement learning.
 
-![AI vs Human Gameplay](Media/ProjectGameplay.gif)
+![AI vs Human Gameplay](Media/FinalGameplay.gif)
 
 ---
 
