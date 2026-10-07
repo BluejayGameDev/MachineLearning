@@ -1,5 +1,7 @@
 # AI vs Human – Reinforcement Learning
+---
 ![Agent Training](Media/Thumbnail.gif)
+---
 
 ## Overview
 
