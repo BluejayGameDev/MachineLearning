@@ -314,13 +314,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (4)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -499,13 +507,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (7)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -639,13 +655,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (1)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -700,6 +724,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: deathPenalty
       value: -0.5
@@ -710,7 +742,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1171,13 +1203,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (3)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1504,13 +1544,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (8)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1565,13 +1613,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (6)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2182,6 +2238,9 @@ MonoBehaviour:
   goalReward: 1
   losePenalty: -1
   timeoutPenalty: -1
+  stuckPenalty: -0.02
+  stuckTimeThreshold: 0.5
+  stuckMovementThreshold: 0.01
   deathPenalty: -0.1
   currentEpisode: 0
   cumulativeReward: 0
@@ -2456,13 +2515,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_Name
       value: Learning Environment (2)
       objectReference: {fileID: 0}
     - target: {fileID: 6175680517979528795, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646921786126748931, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2670,6 +2737,10 @@ PrefabInstance:
       propertyPath: preventSameLevelRepeating
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4624244203365749383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 24
+      objectReference: {fileID: 0}
     - target: {fileID: 5864855776238895774, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: raceManager
       value: 
@@ -2678,6 +2749,10 @@ PrefabInstance:
       propertyPath: levelManager
       value: 
       objectReference: {fileID: 1937638794}
+    - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
+      propertyPath: goalReward
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6157991091388470383, guid: 76f474a0f39f4314db9d0d3cee4102cd, type: 3}
       propertyPath: raceManager
       value: 

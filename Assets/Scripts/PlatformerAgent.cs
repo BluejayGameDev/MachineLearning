@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
@@ -27,12 +28,15 @@ public class PlatformerAgent : Agent
     [Header("Rewards")]
     [SerializeField] private float progressReward = 0.1f;
     [SerializeField] private float stepPenalty = -0.001f;
-    [SerializeField] private float goalReward = 1f;
+    [SerializeField] private float goalReward = 2f;
     [SerializeField] private float losePenalty = -1f;
     [SerializeField] private float timeoutPenalty = -1f;
+    [SerializeField] private float stuckPenalty = -0.02f;
+    [SerializeField] private float stuckTimeThreshold = 0.5f;
+    [SerializeField] private float stuckMovementThreshold = 0.01f;
 
     [Header("Death")]
-    [SerializeField] private float deathPenalty = -0.1f;
+    [SerializeField] private float deathPenalty = -0.5f;
 
     [Header("Stats")]
     [HideInInspector] public int currentEpisode;
@@ -43,32 +47,27 @@ public class PlatformerAgent : Agent
     private float previousDistanceToGoal;
     private int facingDirection = 1;
     private Vector3 originalScale;
+    private Vector2 lastStuckCheckPosition;
+    private float stuckTimer;
+    private int lastMoveAction;
 
     public override void Initialize()
     {
-        rb =
-            GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
 
         if (rb == null)
         {
-            Debug.LogError(
-                "PlatformerAgent needs a Rigidbody2D!"
-            );
+            Debug.LogError("PlatformerAgent needs a Rigidbody2D!");
 
             return;
         }
 
-        originalScale =
-            transform.localScale;
+        originalScale = transform.localScale;
 
-        rb.gravityScale =
-            gravity;
+        rb.gravityScale = gravity;
 
-        currentEpisode =
-            0;
-
-        cumulativeReward =
-            0f;
+        currentEpisode = 0;
+        cumulativeReward = 0f;
     }
 
     public override void OnEpisodeBegin()
@@ -87,10 +86,7 @@ public class PlatformerAgent : Agent
 
         if (levelManager != null)
         {
-            levelManager.ResetLevel(
-                FinishEpisodeReset
-            );
-
+            levelManager.ResetLevel(FinishEpisodeReset);
             return;
         }
 
@@ -101,52 +97,31 @@ public class PlatformerAgent : Agent
     {
         if (levelManager != null)
         {
-            startPosition =
-                levelManager.GetCurrentStartPosition();
+            startPosition = levelManager.GetCurrentStartPosition();
 
-            goal =
-                levelManager.GetCurrentGoal();
+            goal = levelManager.GetCurrentGoal();
         }
 
         if (startPosition == null)
         {
-            Debug.LogError(
-                "PlatformerAgent: Could not get Startpos from LevelManager!"
-            );
+            Debug.LogError("PlatformerAgent: Could not get Startpos from LevelManager!");
         }
 
         if (goal == null)
         {
-            Debug.LogError(
-                "PlatformerAgent: Could not get Goal from LevelManager!"
-            );
+            Debug.LogError("PlatformerAgent: Could not get Goal from LevelManager!");
         }
 
         if (currentEpisode > 0)
         {
-            Debug.Log(
-                "================================"
-            );
+            Debug.Log("================================");
 
-            Debug.Log(
-                "EPISODE #" +
-                currentEpisode +
-                " ENDED"
-            );
+            Debug.Log("EPISODE #" + currentEpisode + " ENDED");
 
-            Debug.Log(
-                "FINAL AI REWARD: " +
-                cumulativeReward.ToString("F4")
-            );
+            Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
 
-            Debug.Log(
-                "AI STEP COUNT: " +
-                StepCount
-            );
-
-            Debug.Log(
-                "================================"
-            );
+            Debug.Log("AI STEP COUNT: " + StepCount);
+            Debug.Log("================================");
         }
 
         currentEpisode++;
@@ -159,57 +134,29 @@ public class PlatformerAgent : Agent
             raceManager.ResetForNewEpisode();
         }
 
-        if (goal != null)
-        {
-            previousDistanceToGoal =
-                Vector2.Distance(
-                    transform.position,
-                    goal.position
-                );
-        }
+        if (goal != null) previousDistanceToGoal = Vector2.Distance(transform.position, goal.position);
+        lastStuckCheckPosition = transform.position;
+        stuckTimer = 0f;
+        lastMoveAction = 0;
 
-        Debug.Log(
-            "NEW EPISODE #" +
-            currentEpisode +
-            " - AI AND PLAYER RESET"
-        );
+        Debug.Log("NEW EPISODE #" + currentEpisode + " - AI AND PLAYER RESET");
     }
 
-    public override void CollectObservations(
-        VectorSensor sensor
-    )
+    public override void CollectObservations(VectorSensor sensor)
     {
         // ============================================================
-        // GOAL OBSERVATIONS
+        // GOAL OBSERVATIONS (3)
         // ============================================================
 
         if (goal != null)
         {
-            Vector2 directionToGoal =
-                goal.position -
-                transform.position;
+            Vector2 directionToGoal = goal.position - transform.position;
 
-            sensor.AddObservation(
-                Mathf.Clamp(
-                    directionToGoal.x / 20f,
-                    -1f,
-                    1f
-                )
-            );
+            sensor.AddObservation(Mathf.Clamp(directionToGoal.x / 20f, -1f, 1f));
 
-            sensor.AddObservation(
-                Mathf.Clamp(
-                    directionToGoal.y / 10f,
-                    -1f,
-                    1f
-                )
-            );
+            sensor.AddObservation(Mathf.Clamp(directionToGoal.y / 10f, -1f, 1f));
 
-            sensor.AddObservation(
-                Mathf.Clamp01(
-                    directionToGoal.magnitude / 25f
-                )
-            );
+            sensor.AddObservation(Mathf.Clamp01(directionToGoal.magnitude / 25f));
         }
         else
         {
@@ -219,13 +166,12 @@ public class PlatformerAgent : Agent
         }
 
         // ============================================================
-        // VELOCITY OBSERVATIONS
+        // VELOCITY OBSERVATIONS (2)
         // ============================================================
 
         if (rb == null)
         {
-            rb =
-                GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody2D>();
         }
 
         float velocityX = 0f;
@@ -233,165 +179,119 @@ public class PlatformerAgent : Agent
 
         if (rb != null)
         {
-            velocityX =
-                rb.linearVelocity.x;
-
-            velocityY =
-                rb.linearVelocity.y;
+            velocityX = rb.linearVelocity.x;
+            velocityY = rb.linearVelocity.y;
         }
 
-        sensor.AddObservation(
-            Mathf.Clamp(
-                velocityX / moveSpeed,
-                -1f,
-                1f
-            )
-        );
+        sensor.AddObservation(Mathf.Clamp(velocityX / moveSpeed, -1f, 1f));
 
-        sensor.AddObservation(
-            Mathf.Clamp(
-                velocityY / jumpPower,
-                -1f,
-                1f
-            )
-        );
+        sensor.AddObservation(Mathf.Clamp(velocityY / jumpPower, -1f, 1f));
 
         // ============================================================
-        // GROUNDED OBSERVATION
+        // GROUNDED OBSERVATION (1)
         // ============================================================
 
-        sensor.AddObservation(
-            isGrounded ? 1f : 0f
-        );
+        sensor.AddObservation(isGrounded ? 1f : 0f);
 
         // ============================================================
-        // ENVIRONMENT / EYE OBSERVATIONS
+        // ENVIRONMENT / EYE OBSERVATIONS (16)
         // ============================================================
 
         if (agentEyes != null)
         {
-            float[] eyeDistances =
-                agentEyes.GetEyeDistances();
+            float[] eyeDistances = agentEyes.GetEyeDistances();
 
-            float[] eyeTypes =
-                agentEyes.GetEyeTypes();
+            float[] eyeTypes = agentEyes.GetEyeTypes();
 
-            for (int i = 0;
-                 i < eyeDistances.Length;
-                 i++)
+            for (int i = 0; i < eyeDistances.Length; i++)
             {
                 // Distance:
                 // 0 = object is very close
                 // 1 = nothing detected within eye range
 
-                sensor.AddObservation(
-                    Mathf.Clamp01(
-                        eyeDistances[i] /
-                        agentEyes.EyeLength
-                    )
-                );
+                sensor.AddObservation(Mathf.Clamp01(eyeDistances[i] / agentEyes.EyeLength));
 
                 // Type:
                 // 0 = nothing
                 // 0.5 = platform
                 // 1 = deadly
 
-                sensor.AddObservation(
-                    eyeTypes[i] / 2f
-                );
+                sensor.AddObservation(eyeTypes[i] / 2f);
             }
         }
         else
         {
-            // 8 eyes × 2 observations per eye.
+            // Eight eyes, with two observations per eye.
             for (int i = 0; i < 8; i++)
             {
                 sensor.AddObservation(1f);
                 sensor.AddObservation(0f);
             }
         }
+
+        // ============================================================
+        // GROUND DISTANCE OBSERVATIONS (2) - NEW
+        // ============================================================
+
+        if (agentEyes != null)
+        {
+            float[] groundDistances = agentEyes.GetGroundDistances();
+
+            sensor.AddObservation(groundDistances[0]);
+            sensor.AddObservation(groundDistances[1]);
+        }
+        else
+        {
+            // Default values mean no ground detected.
+            sensor.AddObservation(1f);
+            sensor.AddObservation(1f);
+        }
     }
 
-    public override void OnActionReceived(
-        ActionBuffers actions
-    )
+    public override void OnActionReceived(ActionBuffers actions)
     {
         if (rb == null)
         {
             return;
         }
 
-        int moveAction =
-            actions.DiscreteActions[0];
+        int moveAction = actions.DiscreteActions[0];
+        lastMoveAction = moveAction;
 
         if (moveAction == 1)
         {
-            rb.linearVelocity =
-                new Vector2(
-                    -moveSpeed,
-                    rb.linearVelocity.y
-                );
+            rb.linearVelocity = new Vector2(-moveSpeed, rb.linearVelocity.y);
 
             facingDirection = -1;
             UpdateFacingDirection();
         }
         else if (moveAction == 2)
         {
-            rb.linearVelocity =
-                new Vector2(
-                    moveSpeed,
-                    rb.linearVelocity.y
-                );
+            rb.linearVelocity = new Vector2(moveSpeed, rb.linearVelocity.y);
 
             facingDirection = 1;
             UpdateFacingDirection();
         }
         else
         {
-            rb.linearVelocity =
-                new Vector2(
-                    0f,
-                    rb.linearVelocity.y
-                );
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         }
 
-        int jumpAction =
-            actions.DiscreteActions[1];
+        int jumpAction = actions.DiscreteActions[1];
 
-        if (jumpAction == 1 &&
-            isGrounded)
+        if (jumpAction == 1 && isGrounded)
         {
-            rb.linearVelocity =
-                new Vector2(
-                    rb.linearVelocity.x,
-                    jumpPower
-                );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
         }
 
         GiveReward(stepPenalty);
 
         if (goal != null)
         {
-            float currentDistanceToGoal =
-                Vector2.Distance(
-                    transform.position,
-                    goal.position
-                );
-
-            float distanceImprovement =
-                previousDistanceToGoal -
-                currentDistanceToGoal;
-
-            if (distanceImprovement > 0f)
-            {
-                GiveReward(
-                    distanceImprovement *
-                    progressReward
-                );
-            }
-
-            previousDistanceToGoal =
-                currentDistanceToGoal;
+            float currentDistanceToGoal = Vector2.Distance(transform.position, goal.position);
+            float distanceImprovement = previousDistanceToGoal - currentDistanceToGoal;
+            if (distanceImprovement > 0f) GiveReward(distanceImprovement * progressReward);
+            previousDistanceToGoal = currentDistanceToGoal;
         }
     }
 
@@ -404,6 +304,26 @@ public class PlatformerAgent : Agent
     private void FixedUpdate()
     {
         CheckGrounded();
+        CheckIfStuck();
+    }
+
+    private void CheckIfStuck()
+    {
+        Vector2 currentPosition = transform.position;
+        float horizontalMovement = Mathf.Abs(currentPosition.x - lastStuckCheckPosition.x);
+
+        if (isGrounded && lastMoveAction != 0 && horizontalMovement < stuckMovementThreshold)
+        {
+            stuckTimer += Time.fixedDeltaTime;
+            if (stuckTimer >= stuckTimeThreshold)
+            {
+                GiveReward(stuckPenalty);
+                stuckTimer = 0f;
+            }
+        }
+        else stuckTimer = 0f;
+
+        lastStuckCheckPosition = currentPosition;
     }
 
     private void CheckGrounded()
@@ -414,44 +334,30 @@ public class PlatformerAgent : Agent
             return;
         }
 
-        isGrounded =
-            Physics2D.OverlapCircle(
-                groundCheck.position,
-                groundCheckRadius,
-                groundLayer
-            );
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     private void UpdateFacingDirection()
     {
-        Vector3 newScale =
-            originalScale;
+        Vector3 newScale = originalScale;
 
         if (facingDirection == -1)
         {
-            newScale.x =
-                -Mathf.Abs(
-                    originalScale.x
-                );
+            newScale.x = -Mathf.Abs(originalScale.x);
         }
         else
         {
-            newScale.x =
-                Mathf.Abs(
-                    originalScale.x
-                );
+            newScale.x = Mathf.Abs(originalScale.x);
         }
 
-        transform.localScale =
-            newScale;
+        transform.localScale = newScale;
     }
 
     public void ResetAgentPosition()
     {
         if (rb == null)
         {
-            rb =
-                GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody2D>();
         }
 
         if (rb == null)
@@ -461,34 +367,26 @@ public class PlatformerAgent : Agent
 
         if (startPosition != null)
         {
-            transform.position =
-                startPosition.position;
-
-            rb.position =
-                startPosition.position;
+            transform.position = startPosition.position;
+            rb.position = startPosition.position;
         }
 
-        rb.linearVelocity =
-            Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.gravityScale = gravity;
 
-        rb.angularVelocity =
-            0f;
-
-        rb.gravityScale =
-            gravity;
-
-        transform.rotation =
-            Quaternion.identity;
+        transform.rotation = Quaternion.identity;
 
         isGrounded = false;
+        stuckTimer = 0f;
+        lastMoveAction = 0;
+        lastStuckCheckPosition = transform.position;
 
         facingDirection = 1;
         UpdateFacingDirection();
     }
 
-    private void OnTriggerEnter2D(
-        Collider2D collision
-    )
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Deadly"))
         {
@@ -496,13 +394,9 @@ public class PlatformerAgent : Agent
         }
     }
 
-    private void OnCollisionEnter2D(
-        Collision2D collision
-    )
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag(
-            "Deadly"
-        ))
+        if (collision.gameObject.CompareTag("Deadly"))
         {
             Die();
         }
@@ -533,14 +427,10 @@ public class PlatformerAgent : Agent
 
         Debug.Log("================================");
         Debug.Log("RESULT: AI WON");
-        Debug.Log(
-            "FINAL AI REWARD: " +
-            cumulativeReward.ToString("F4")
-        );
-        Debug.Log(
-            "AI STEP COUNT: " +
-            StepCount
-        );
+
+        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
+
+        Debug.Log("AI STEP COUNT: " + StepCount);
         Debug.Log("================================");
 
         EndEpisode();
@@ -557,14 +447,10 @@ public class PlatformerAgent : Agent
 
         Debug.Log("================================");
         Debug.Log("RESULT: PLAYER WON");
-        Debug.Log(
-            "FINAL AI REWARD: " +
-            cumulativeReward.ToString("F4")
-        );
-        Debug.Log(
-            "AI STEP COUNT: " +
-            StepCount
-        );
+
+        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
+
+        Debug.Log("AI STEP COUNT: " + StepCount);
         Debug.Log("================================");
 
         EndEpisode();
@@ -581,14 +467,10 @@ public class PlatformerAgent : Agent
 
         Debug.Log("================================");
         Debug.Log("RESULT: TIMEOUT");
-        Debug.Log(
-            "FINAL AI REWARD: " +
-            cumulativeReward.ToString("F4")
-        );
-        Debug.Log(
-            "AI STEP COUNT: " +
-            StepCount
-        );
+
+        Debug.Log("FINAL AI REWARD: " + cumulativeReward.ToString("F4"));
+
+        Debug.Log("AI STEP COUNT: " + StepCount);
         Debug.Log("================================");
 
         EndEpisode();
@@ -598,8 +480,7 @@ public class PlatformerAgent : Agent
     {
         if (rb == null)
         {
-            rb =
-                GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody2D>();
         }
 
         if (rb == null)
@@ -609,37 +490,28 @@ public class PlatformerAgent : Agent
 
         if (startPosition != null)
         {
-            transform.position =
-                startPosition.position;
-
-            rb.position =
-                startPosition.position;
+            transform.position = startPosition.position;
+            rb.position = startPosition.position;
         }
 
-        rb.linearVelocity =
-            Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.gravityScale = gravity;
 
-        rb.angularVelocity =
-            0f;
-
-        rb.gravityScale =
-            gravity;
-
-        transform.rotation =
-            Quaternion.identity;
+        transform.rotation = Quaternion.identity;
 
         isGrounded = false;
+        stuckTimer = 0f;
+        lastMoveAction = 0;
+        lastStuckCheckPosition = transform.position;
 
         facingDirection = 1;
         UpdateFacingDirection();
     }
 
-    public override void Heuristic(
-        in ActionBuffers actionsOut
-    )
+    public override void Heuristic(in ActionBuffers actionsOut)
     {
-        var actions =
-            actionsOut.DiscreteActions;
+        var actions = actionsOut.DiscreteActions;
 
         actions[0] = 0;
 
@@ -667,17 +539,10 @@ public class PlatformerAgent : Agent
             return;
         }
 
-        Gizmos.color =
-            Color.green;
+        Gizmos.color = Color.green;
 
-        Gizmos.DrawLine(
-            transform.position,
-            goal.position
-        );
+        Gizmos.DrawLine(transform.position, goal.position);
 
-        Gizmos.DrawWireSphere(
-            goal.position,
-            0.3f
-        );
+        Gizmos.DrawWireSphere(goal.position, 0.3f);
     }
 }
