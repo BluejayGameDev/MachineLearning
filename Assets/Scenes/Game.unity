@@ -2293,7 +2293,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &893862416773148068
 GameObject:
   m_ObjectHideFlags: 0
@@ -2361,6 +2361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levels:
   - {fileID: 1324994111280992336, guid: 74a87a942cb90e24eb9f8d3f470ae83e, type: 3}
+  - {fileID: 1324994111280992336, guid: 49e50ad3abab404438d96986ff0442ac, type: 3}
   levelSpawnPoint: {fileID: 3086186727385481750}
   raceManager: {fileID: 7193807037702953876}
   background: {fileID: 4836326022825029747}
@@ -3525,7 +3526,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 34f0d3d583f26c2409a0f64a3005f13d, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 669839040f3750545906645c3f40bf89, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 2
   m_BehaviorName: Platformer
