@@ -39,6 +39,9 @@ public class RaceManager : MonoBehaviour
     private RigidbodyConstraints2D playerOriginalConstraints;
     private RigidbodyConstraints2D aiOriginalConstraints;
 
+    private Coroutine countdownCoroutine;
+    private bool charactersFrozen;
+
     private void Start()
     {
         if (player != null) playerRb = player.GetComponent<Rigidbody2D>();
@@ -55,6 +58,8 @@ public class RaceManager : MonoBehaviour
 
     public void StartRace()
     {
+        StopCountdown();
+
         raceFinished = true;
         raceReady = false;
 
@@ -65,17 +70,19 @@ public class RaceManager : MonoBehaviour
 
         ResetPlayer();
 
+        if (ai != null) ai.ResetAgentPosition();
+
         if (isCountdown)
         {
             FreezeCharacters();
-            StartCoroutine(CountdownRoutine());
+            countdownCoroutine = StartCoroutine(CountdownRoutine());
         }
         else
         {
             BeginRace();
         }
 
-        Debug.Log("RACE STARTED - Attempt " + attempts);
+        Debug.Log("RACE STARTING - Attempt " + attempts);
     }
 
     private IEnumerator CountdownRoutine()
@@ -94,6 +101,19 @@ public class RaceManager : MonoBehaviour
         BeginRace();
 
         yield return new WaitForSeconds(0.5f);
+
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
+
+        countdownCoroutine = null;
+    }
+
+    private void StopCountdown()
+    {
+        if (countdownCoroutine != null)
+        {
+            StopCoroutine(countdownCoroutine);
+            countdownCoroutine = null;
+        }
 
         if (countdownText != null) countdownText.gameObject.SetActive(false);
     }
@@ -116,6 +136,8 @@ public class RaceManager : MonoBehaviour
 
     private void FreezeCharacters()
     {
+        if (charactersFrozen) return;
+
         if (playerRb != null)
         {
             playerOriginalConstraints = playerRb.constraints;
@@ -131,10 +153,14 @@ public class RaceManager : MonoBehaviour
             aiRb.angularVelocity = 0f;
             aiRb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
+
+        charactersFrozen = true;
     }
 
     private void UnfreezeCharacters()
     {
+        if (!charactersFrozen) return;
+
         if (playerRb != null)
         {
             playerRb.constraints = playerOriginalConstraints;
@@ -146,6 +172,8 @@ public class RaceManager : MonoBehaviour
             aiRb.constraints = aiOriginalConstraints;
             aiRb.linearVelocity = Vector2.zero;
         }
+
+        charactersFrozen = false;
     }
 
     // ============================================================
@@ -183,6 +211,8 @@ public class RaceManager : MonoBehaviour
 
     public Transform GetCurrentStartPosition()
     {
+        if (levelManager == null) return null;
+
         return levelManager.GetCurrentStartPosition();
     }
 
@@ -199,14 +229,14 @@ public class RaceManager : MonoBehaviour
 
     public void PrepareForNewRoom()
     {
+        StopCountdown();
+
         raceReady = false;
         raceFinished = true;
 
-        ResetPlayer();
+        FreezeCharacters();
 
-        if (ai != null) ai.ResetAgentPosition();
-
-        Debug.Log("AI AND PLAYER RESET BEFORE NEW ROOM");
+        Debug.Log("PREPARING NEW ROOM");
     }
 
     // ============================================================
@@ -215,16 +245,7 @@ public class RaceManager : MonoBehaviour
 
     public void ResetForNewEpisode()
     {
-        ResetPlayer();
-
-        if (ai != null) ai.ResetAgentPosition();
-
-        raceFinished = false;
-        raceReady = true;
-
-        raceStartTime = Time.time;
-
-        Debug.Log("PLAYER AND AI RESET - NEW EPISODE");
+        StartRace();
     }
 
     // ============================================================
@@ -305,6 +326,7 @@ public class RaceManager : MonoBehaviour
     public float GetPlayerTime() { return playerTime; }
     public float GetAITime() { return aiTime; }
     public bool IsRaceFinished() { return raceFinished; }
+    public bool IsRaceReady() { return raceReady && !raceFinished; }
     public int GetAttempts() { return attempts; }
     public int GetAIWins() { return aiWins; }
     public int GetPlayerWins() { return playerWins; }

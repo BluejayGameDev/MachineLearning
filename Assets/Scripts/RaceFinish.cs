@@ -16,8 +16,7 @@ public class RaceFinish : MonoBehaviour
             return;
         }
 
-        PlayerController player =
-            collision.GetComponent<PlayerController>();
+        PlayerController player = collision.GetComponent<PlayerController>();
 
         if (player != null)
         {

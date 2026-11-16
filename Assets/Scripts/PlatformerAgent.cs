@@ -50,6 +50,7 @@ public class PlatformerAgent : Agent
     public override void Initialize()
     {
         rb = GetComponent<Rigidbody2D>();
+
         if (rb == null)
         {
             Debug.LogError("PlatformerAgent needs a Rigidbody2D!");
@@ -95,12 +96,12 @@ public class PlatformerAgent : Agent
 
         ResetAgentPosition();
 
-        if (raceManager != null) raceManager.ResetForNewEpisode();
-
         previousDistanceToGoal = goal != null ? Vector2.Distance(transform.position, goal.position) : 0f;
         lastStuckCheckPosition = transform.position;
         stuckTimer = 0f;
         lastMoveAction = 0;
+
+        if (raceManager != null) raceManager.ResetForNewEpisode();
 
         Debug.Log($"NEW EPISODE #{currentEpisode} - AI AND PLAYER RESET");
     }
@@ -160,6 +161,12 @@ public class PlatformerAgent : Agent
     {
         if (rb == null) return;
 
+        if (raceManager != null && !raceManager.IsRaceReady())
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
         int moveAction = actions.DiscreteActions[0];
         lastMoveAction = moveAction;
 
@@ -190,6 +197,14 @@ public class PlatformerAgent : Agent
     private void FixedUpdate()
     {
         CheckGrounded();
+
+        if (raceManager != null && !raceManager.IsRaceReady())
+        {
+            lastStuckCheckPosition = transform.position;
+            stuckTimer = 0f;
+            return;
+        }
+
         CheckIfStuck();
     }
 
@@ -269,6 +284,8 @@ public class PlatformerAgent : Agent
 
     private void Die()
     {
+        if (raceManager != null && !raceManager.IsRaceReady()) return;
+
         GiveReward(deathPenalty);
 
         if (raceManager != null) raceManager.AIDied();
