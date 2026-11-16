@@ -1,4 +1,7 @@
+
+using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class RaceManager : MonoBehaviour
 {
@@ -6,9 +9,11 @@ public class RaceManager : MonoBehaviour
     [SerializeField] private PlatformerAgent ai;
     [SerializeField] private Transform player;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private TMP_Text countdownText;
 
     [Header("Settings")]
     [SerializeField] private bool startRaceAutomatically = true;
+    [SerializeField] private bool isCountdown = true;
 
     [Header("Level")]
     [SerializeField] private int currentLevel = 1;
@@ -28,18 +33,30 @@ public class RaceManager : MonoBehaviour
 
     private float bestAITime = Mathf.Infinity;
 
+    private Rigidbody2D playerRb;
+    private Rigidbody2D aiRb;
+
+    private RigidbodyConstraints2D playerOriginalConstraints;
+    private RigidbodyConstraints2D aiOriginalConstraints;
+
     private void Start()
     {
-        if (startRaceAutomatically)
-        {
-            StartRace();
-        }
+        if (player != null) playerRb = player.GetComponent<Rigidbody2D>();
+        if (ai != null) aiRb = ai.GetComponent<Rigidbody2D>();
+
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
+
+        if (startRaceAutomatically) StartRace();
     }
+
+    // ============================================================
+    // START RACE
+    // ============================================================
 
     public void StartRace()
     {
-        raceFinished = false;
-        raceReady = true;
+        raceFinished = true;
+        raceReady = false;
 
         attempts++;
 
@@ -48,23 +65,98 @@ public class RaceManager : MonoBehaviour
 
         ResetPlayer();
 
+        if (isCountdown)
+        {
+            FreezeCharacters();
+            StartCoroutine(CountdownRoutine());
+        }
+        else
+        {
+            BeginRace();
+        }
+
+        Debug.Log("RACE STARTED - Attempt " + attempts);
+    }
+
+    private IEnumerator CountdownRoutine()
+    {
+        if (countdownText != null) countdownText.gameObject.SetActive(true);
+
+        for (int i = 3; i > 0; i--)
+        {
+            if (countdownText != null) countdownText.text = i.ToString();
+
+            yield return new WaitForSeconds(1f);
+        }
+
+        if (countdownText != null) countdownText.text = "GO!";
+
+        BeginRace();
+
+        yield return new WaitForSeconds(0.5f);
+
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
+    }
+
+    private void BeginRace()
+    {
+        UnfreezeCharacters();
+
+        raceFinished = false;
+        raceReady = true;
+
         raceStartTime = Time.time;
 
-        Debug.Log(
-            "RACE STARTED - Attempt " +
-            attempts
-        );
+        Debug.Log("GO! RACE STARTED!");
     }
+
+    // ============================================================
+    // FREEZE / UNFREEZE
+    // ============================================================
+
+    private void FreezeCharacters()
+    {
+        if (playerRb != null)
+        {
+            playerOriginalConstraints = playerRb.constraints;
+            playerRb.linearVelocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+            playerRb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+
+        if (aiRb != null)
+        {
+            aiOriginalConstraints = aiRb.constraints;
+            aiRb.linearVelocity = Vector2.zero;
+            aiRb.angularVelocity = 0f;
+            aiRb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+    }
+
+    private void UnfreezeCharacters()
+    {
+        if (playerRb != null)
+        {
+            playerRb.constraints = playerOriginalConstraints;
+            playerRb.linearVelocity = Vector2.zero;
+        }
+
+        if (aiRb != null)
+        {
+            aiRb.constraints = aiOriginalConstraints;
+            aiRb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    // ============================================================
+    // PLAYER RESET
+    // ============================================================
 
     private void ResetPlayer()
     {
-        if (player == null)
-        {
-            return;
-        }
+        if (player == null) return;
 
-        PlayerController playerController =
-            player.GetComponent<PlayerController>();
+        PlayerController playerController = player.GetComponent<PlayerController>();
 
         if (playerController != null)
         {
@@ -72,25 +164,16 @@ public class RaceManager : MonoBehaviour
             return;
         }
 
-        Transform startPosition =
-            GetCurrentStartPosition();
+        Transform startPosition = GetCurrentStartPosition();
 
-        if (startPosition != null)
-        {
-            player.position =
-                startPosition.position;
-        }
+        if (startPosition != null) player.position = startPosition.position;
 
-        Rigidbody2D rb =
-            player.GetComponent<Rigidbody2D>();
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
 
         if (rb != null)
         {
-            rb.linearVelocity =
-                Vector2.zero;
-
-            rb.angularVelocity =
-                0f;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
         }
     }
 
@@ -105,10 +188,7 @@ public class RaceManager : MonoBehaviour
 
     public Transform GetCurrentGoal()
     {
-        if (levelManager == null)
-        {
-            return null;
-        }
+        if (levelManager == null) return null;
 
         return levelManager.GetCurrentGoal();
     }
@@ -124,14 +204,9 @@ public class RaceManager : MonoBehaviour
 
         ResetPlayer();
 
-        if (ai != null)
-        {
-            ai.ResetAgentPosition();
-        }
+        if (ai != null) ai.ResetAgentPosition();
 
-        Debug.Log(
-            "AI AND PLAYER RESET BEFORE NEW ROOM"
-        );
+        Debug.Log("AI AND PLAYER RESET BEFORE NEW ROOM");
     }
 
     // ============================================================
@@ -142,19 +217,14 @@ public class RaceManager : MonoBehaviour
     {
         ResetPlayer();
 
-        if (ai != null)
-        {
-            ai.ResetAgentPosition();
-        }
+        if (ai != null) ai.ResetAgentPosition();
 
         raceFinished = false;
         raceReady = true;
 
         raceStartTime = Time.time;
 
-        Debug.Log(
-            "PLAYER AND AI RESET - NEW EPISODE"
-        );
+        Debug.Log("PLAYER AND AI RESET - NEW EPISODE");
     }
 
     // ============================================================
@@ -163,60 +233,36 @@ public class RaceManager : MonoBehaviour
 
     public void PlayerFinished()
     {
-        if (!raceReady || raceFinished)
-        {
-            return;
-        }
+        if (!raceReady || raceFinished) return;
 
         raceFinished = true;
         raceReady = false;
 
         playerWins++;
 
-        playerTime =
-            Time.time -
-            raceStartTime;
+        playerTime = Time.time - raceStartTime;
 
-        Debug.Log(
-            "PLAYER WON - AI LOSES!"
-        );
+        Debug.Log("PLAYER WON - AI LOSES!");
 
-        if (ai != null)
-        {
-            ai.PlayerWon();
-        }
+        if (ai != null) ai.PlayerWon();
     }
 
     public void AIFinished()
     {
-        if (!raceReady || raceFinished)
-        {
-            return;
-        }
+        if (!raceReady || raceFinished) return;
 
         raceFinished = true;
         raceReady = false;
 
         aiWins++;
 
-        aiTime =
-            Time.time -
-            raceStartTime;
+        aiTime = Time.time - raceStartTime;
 
-        if (aiTime < bestAITime)
-        {
-            bestAITime =
-                aiTime;
-        }
+        if (aiTime < bestAITime) bestAITime = aiTime;
 
-        Debug.Log(
-            "AI WON!"
-        );
+        Debug.Log("AI WON!");
 
-        if (ai != null)
-        {
-            ai.ReachedGoal();
-        }
+        if (ai != null) ai.ReachedGoal();
     }
 
     // ============================================================
@@ -225,37 +271,24 @@ public class RaceManager : MonoBehaviour
 
     public void PlayerDied()
     {
-        if (raceFinished)
-        {
-            return;
-        }
+        if (raceFinished) return;
 
         playerDeaths++;
 
-        Debug.Log(
-            "PLAYER DIED - RESETTING"
-        );
+        Debug.Log("PLAYER DIED - RESETTING");
 
         ResetPlayer();
     }
 
     public void AIDied()
     {
-        if (raceFinished)
-        {
-            return;
-        }
+        if (raceFinished) return;
 
         aiDeaths++;
 
-        Debug.Log(
-            "AI DIED - RESETTING POSITION"
-        );
+        Debug.Log("AI DIED - RESETTING POSITION");
 
-        if (ai != null)
-        {
-            ai.ResetAgentPosition();
-        }
+        if (ai != null) ai.ResetAgentPosition();
     }
 
     // ============================================================
@@ -264,67 +297,20 @@ public class RaceManager : MonoBehaviour
 
     public float GetCurrentRaceTime()
     {
-        if (raceFinished)
-        {
-            return 0f;
-        }
+        if (raceFinished) return 0f;
 
-        return Time.time -
-            raceStartTime;
+        return Time.time - raceStartTime;
     }
 
-    public float GetPlayerTime()
-    {
-        return playerTime;
-    }
-
-    public float GetAITime()
-    {
-        return aiTime;
-    }
-
-    public bool IsRaceFinished()
-    {
-        return raceFinished;
-    }
-
-    public int GetAttempts()
-    {
-        return attempts;
-    }
-
-    public int GetAIWins()
-    {
-        return aiWins;
-    }
-
-    public int GetPlayerWins()
-    {
-        return playerWins;
-    }
-
-    public int GetAIDeaths()
-    {
-        return aiDeaths;
-    }
-
-    public int GetPlayerDeaths()
-    {
-        return playerDeaths;
-    }
-
-    public float GetBestAITime()
-    {
-        return bestAITime;
-    }
-
-    public int GetCurrentLevel()
-    {
-        return currentLevel;
-    }
-
-    public PlatformerAgent GetAI()
-    {
-        return ai;
-    }
+    public float GetPlayerTime() { return playerTime; }
+    public float GetAITime() { return aiTime; }
+    public bool IsRaceFinished() { return raceFinished; }
+    public int GetAttempts() { return attempts; }
+    public int GetAIWins() { return aiWins; }
+    public int GetPlayerWins() { return playerWins; }
+    public int GetAIDeaths() { return aiDeaths; }
+    public int GetPlayerDeaths() { return playerDeaths; }
+    public float GetBestAITime() { return bestAITime; }
+    public int GetCurrentLevel() { return currentLevel; }
+    public PlatformerAgent GetAI() { return ai; }
 }

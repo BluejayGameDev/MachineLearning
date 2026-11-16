@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5036725082849599239
 Transform:
   m_ObjectHideFlags: 0
@@ -231,7 +231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6074951653844212519
 Transform:
   m_ObjectHideFlags: 0
@@ -1101,6 +1101,8 @@ MonoBehaviour:
   - {fileID: 1341303077421941702, guid: c0387b0bb622fcb4a9a8eaae139d54bd, type: 3}
   - {fileID: 1341303077421941702, guid: dc5e4a9b30f744b4db315c4739cc9a62, type: 3}
   - {fileID: 1341303077421941702, guid: 91cd96ef802e2ac4e80a2c2359544c4e, type: 3}
+  - {fileID: 1324994111280992336, guid: 49e50ad3abab404438d96986ff0442ac, type: 3}
+  - {fileID: 1324994111280992336, guid: 74a87a942cb90e24eb9f8d3f470ae83e, type: 3}
   levelSpawnPoint: {fileID: 3372991968365880891}
   raceManager: {fileID: 7480084581934874553}
   background: {fileID: 5117501834194408542}
@@ -1210,7 +1212,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7416124688752940024
 Transform:
   m_ObjectHideFlags: 0
@@ -1829,7 +1831,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8244771468407255074
 Transform:
   m_ObjectHideFlags: 0
