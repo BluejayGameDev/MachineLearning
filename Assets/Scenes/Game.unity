@@ -1663,8 +1663,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levels:
-  - {fileID: 1324994111280992336, guid: 74a87a942cb90e24eb9f8d3f470ae83e, type: 3}
-  - {fileID: 1324994111280992336, guid: 49e50ad3abab404438d96986ff0442ac, type: 3}
+  - {fileID: 1324994111280992336, guid: 48f60a94155a68040a72a67982d2f837, type: 3}
   levelSpawnPoint: {fileID: 3086186727385481750}
   raceManager: {fileID: 7193807037702953876}
   background: {fileID: 4836326022825029747}
@@ -2877,7 +2876,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 5
+  DecisionPeriod: 3
   DecisionStep: 0
   TakeActionsBetweenDecisions: 1
 --- !u!212 &5605936441837345744
